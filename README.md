@@ -6,6 +6,7 @@
 
 **Folder - FitCurve:**
 
+``` text
 │  log.md
 │
 ├─Coding
@@ -47,15 +48,16 @@
 │      Location-1-FaceBased-E.fig
 │      Location-1-FaceBased-E.png
 │      ...
+```
 
 ### 1.2 Condition
 
 
-**Model Type**: AlexNet, VGG-16, SE-Location-1, SE-Location-2, SE-Location-3
-**Base**: FaceBased, ObjectBased
-**Masked Area**: Eyes, Mouth, Nose, Full (no mask)
-**Reduction (For SE-AlexNet Only)**: 2, 4, 8, 16, 32 
-**Baseline**: Human (40 Participants)
+* **Model Type**: AlexNet, VGG-16, SE-Location-1, SE-Location-2, SE-Location-3
+* **Base**: FaceBased, ObjectBased
+* **Masked Area**: Eyes, Mouth, Nose, Full (no mask)
+* **Reduction (For SE-AlexNet Only)**: 2, 4, 8, 16, 32 
+* **Baseline**: Human (40 Participants)
 
 ## 2. Function: FitPsycheCurveWH.m
 
@@ -149,3 +151,4 @@ LM = [0, 0, 0, 0.1];
             plot(paraX, ySampled, 'o', 'MarkerEdgeColor', colors.vgg16, 'MarkerFaceColor',...
                  colors.vgg16, 'MarkerSize', 5, 'HandleVisibility', 'off'); %Comment this Line if you are drawing LINE chart
 ```
+
