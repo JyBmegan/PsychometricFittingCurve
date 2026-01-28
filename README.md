@@ -6,6 +6,7 @@
 
 **Folder - FitCurve:**
 
+``` text
 │  log.md
 │
 ├─Coding
@@ -48,6 +49,7 @@
 │      Location-1-FaceBased-E.fig
 │      Location-1-FaceBased-E.png
 │      ...
+```
 
 ### 1.2 Condition
 
