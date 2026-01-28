@@ -15,6 +15,7 @@
 ├─Data
 │  │  affect_human.xlsx
 │  │  human-data-9point.csv
+│  ├─Conv
 │  ├─AlexNet
 │         AlexNet-FaceBased-E-raw.csv
 │         AlexNet-FaceBased-Full-raw.csv
@@ -51,11 +52,17 @@
 ### 1.2 Condition
 
 
-**Model Type**: AlexNet, VGG-16, SE-Location-1, SE-Location-2, SE-Location-3
+**Model Type**: 
+* FC Layers: SE-FC-L1, SE-FC-L2, SE-FC-L3
+* Conv Layers (New): SE-Conv-L1, SE-Conv-L2, SE-Conv-L3, SE-Conv-L4
+
 **Base**: FaceBased, ObjectBased
+
 **Masked Area**: Eyes, Mouth, Nose, Full (no mask)
+
 **Reduction (For SE-AlexNet Only)**: 2, 4, 8, 16, 32 
-**Baseline**: Human (40 Participants)
+
+**Baseline**: Human (50 Participants)
 
 ## 2. Function: FitPsycheCurveWH.m
 
@@ -101,36 +108,46 @@ $$y = g + (1 - g - l) \cdot \frac{1}{2} \left[ 1 + \text{erf}\left( \frac{x - u}
 
 **Run** - `PsychometricFittingCurve.m`
 
+**Automation Steps performed by the script:**
+
+* Auto-Fetch Data: Checks ../ConvResults and automatically copies relevant CSVs to ../Data/Conv.
+
+* Adaptive Loading: Automatically detects if data has 21, 11, or 9 rows and maps them to the correct stimulus intensity points.
+
+* Fitting & Stats: Calculates PSE/Slope, runs T-tests against human data, calculates Cohen's d.
+
+* Plotting: Generates smoothed psychometric curves for all models and human data.
+
 **Output** - Originally Saved in Folder `Results`
 
 ## 4. Notes
 
 ### 4.1 About Constraints
 
-无论是行为学实验还是model的任务，都要求被试/model在“快乐”与“悲伤”中做出分类判断，因此本实验属于 **2AFC Discrimination** Task （2AFC辨别任务）；此外，y轴被定义为Proportion of Happy Response。
+无论是行为学实验还是model的任务，都要求被试/model在“快乐”与“悲伤”中做出分类判断，因此本实验属于 **2AFC Discrimination** Task （2AFC辨别任务）；此外，y轴被定义为Proportion of Happy Response。在极端悲伤 (Intensity=0) 的情况下，判定为“快乐”的概率应趋近于 0 (False Alarm Rate $\approx$ 0)，而非 0.5。
 
 因此对于constraints, 本研究使用：
 
-* *GuessRate* （$g$）[0, 0.1]：极端非快乐点误按“快乐”的概率，不设 0.5 是因为这是辨别任务而非正确率检测。
+* *GuessRate* （$g$）[0, 0.05]：极端非快乐点误按“快乐”的概率，限制虚报率在 5% 以内。
 
 * *LapseRate* （$l$） [0, 0.05]：极端快乐点因走神导致的漏报概率。上限设为心理物理学标准 0.05。
 
-* *PSE* （$u$） [0, 1]：50%响应时的强度（分类边界）。预期值（humandata）约 0.51。
+* *PSE* （$u$） [0, 1]：50%响应时的强度（分类边界）。预期值（humandata）约 0.51。0.5 为真正的中性判定点。
 
-* *Slope* [0.1, 100]：知觉切换的敏锐度，允许极高的分类精度。预期值（humandata）约 4.19。
+* *Slope* [0.001, 100]：知觉切换的敏锐度，允许极高的分类精度。预期值（humandata）约 4.19。
 
 In Code ~Line 24~27：
 
 ``` Matlab
 % Para Limitation
-UL = [0.1, 0.05, 1, 100]; 
-SP = [0.02, 0.02, 0.5, 5.0];  
+UL = [0.05, 0.05, 1, 100]; 
+SP = [0.01, 0.02, 0.5, 5.0];  
 LM = [0, 0, 0, 0.1]; 
 ```
 
 注：其他任务
-* Yes/No 任务：$g \approx 0$，反映信号检测阈限（False Alarm）；
-* 2AFC 检测：$g = 0.5$，曲线从半山腰开始，反映猜测正确率。
+* Yes/No 任务：$ g \approx 0$，反映信号检测阈限（False Alarm）；
+* 2AFC 检测：$ g = 0.5 $，曲线从半山腰开始，反映猜测正确率。
 
 ### 4.2 About Line / FittingCurve
 
@@ -149,3 +166,28 @@ LM = [0, 0, 0, 0.1];
             plot(paraX, ySampled, 'o', 'MarkerEdgeColor', colors.vgg16, 'MarkerFaceColor',...
                  colors.vgg16, 'MarkerSize', 5, 'HandleVisibility', 'off'); %Comment this Line if you are drawing LINE chart
 ```
+### 4.3 Statistical Analysis
+
+Added **One-Sample T-Test** to compare Model PSE vs. Human Population PSEs.
+
+* Human Baseline: Fitted individual PSEs for 50 participants to derive Mean & SD.
+
+* Metrics Exported (in Final_Analysis_Results.xlsx):
+
+    * t_stat: T-value
+    * p_value: Significance level
+    * Cohens_d: Effect size ($d = |PSE_{model} - Mean_{human}| / SD_{human}$)
+
+### 4.4 Naming & Data Management
+
+Using locConfigs structure to manage mixed naming conventions:
+
+1. Old Format (Hyphen): `Location-1-FaceBased-E-2.csv`
+
+    Mapped to Display Name: SE-FC-L1, SE-FC-L2, SE-FC-L3
+
+2. New Format (Underscore): `SeC1_FaceBased_squeeze2_Full.csv`
+
+    Mapped to Display Name: SE-Conv-L1, SE-Conv-L2, SE-Conv-L3, SE-Conv-L4
+
+This ensures clean plot titles and Excel reports despite different underlying file naming rules.
