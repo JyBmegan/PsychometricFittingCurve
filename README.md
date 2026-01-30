@@ -38,7 +38,7 @@
 │         VGG-16-FaceBased-Full-raw.csv
 │         ...
 ├─Results
-│      Fitting_Results.xlsx
+│      Final_Analysis_Results.xlsx
 │      Human_Fitting_Parameters.xlsx
 │      Location-1-FaceBased-E.fig
 │      Location-1-FaceBased-E.png

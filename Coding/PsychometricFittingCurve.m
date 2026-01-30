@@ -241,7 +241,7 @@ resultTable = cell2table(summaryResults, 'VariableNames', ...
     {'Location', 'BaseType', 'MaskType', 'ModelVariant', 'PSE', 'Slope', 't_stat', 'p_value', 'Cohens_d'});
 writetable(resultTable, fullfile(savePath, 'Final_Analysis_Results.xlsx'));
 
-% Save Humans' Data
-humanFinalTable = table({'Human'}, ffitH.g, ffitH.l, humanMeanPSE, humanSDPSE, slopeH, ...
-    'VariableNames', {'Model', 'GuessRate_g', 'LapseRate_l', 'Mean_PSE', 'SD_PSE', 'Slope'});
-writetable(humanFinalTable, fullfile(savePath, 'Human_Final_Stats.xlsx'));
+% % Save Humans' Data
+% humanFinalTable = table({'Human'}, ffitH.g, ffitH.l, humanMeanPSE, humanSDPSE, slopeH, ...
+%     'VariableNames', {'Model', 'GuessRate_g', 'LapseRate_l', 'Mean_PSE', 'SD_PSE', 'Slope'});
+% writetable(humanFinalTable, fullfile(savePath, 'Human_Final_Stats.xlsx'));
