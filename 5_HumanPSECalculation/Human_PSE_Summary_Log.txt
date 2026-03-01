@@ -1,0 +1,9 @@
+
+==================================================
+ 40 participants finded: Human_PSE_40_Subjects.csv
+Group Mean PSE (Mean value for all PSE results, not PSE for all trials between participants) = 0.514269
+Group PSE SD = 0.092421
+Group PSE SE = 0.014613
+==================================================
+Z-score formula for SE-AlexNet:
+Z_AlexNet = (AlexNet_PSE - 0.514269) / 0.092421

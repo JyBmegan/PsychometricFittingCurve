@@ -9,11 +9,11 @@
 ``` text
 │  log.md
 │
-├─Coding
+├─1_Coding
 │      FitPsycheCurveWH.m
 │      PsychometricFittingCurve.m
 │
-├─Data
+├─0_Data
 │  │  affect_human.xlsx
 │  │  human-data-9point.csv
 │  ├─Conv
@@ -37,18 +37,28 @@
 │         VGG-16-FaceBased-E-raw.csv
 │         VGG-16-FaceBased-Full-raw.csv
 │         ...
-├─Results
+├─2_ConvResults
+├─3_Results
 │      Final_Analysis_Results.xlsx
 │      Human_Fitting_Parameters.xlsx
 │      Location-1-FaceBased-E.fig
 │      Location-1-FaceBased-E.png
 │      ...
-├─Results_LineChart
+├─4_Results_LineChart
 │      Fitting_Results.xlsx
 │      Human_Fitting_Parameters.xlsx
 │      Location-1-FaceBased-E.fig
 │      Location-1-FaceBased-E.png
 │      ...
+├─5_HumanPSECalculation
+│      Final_Analysis_Results.xlsx
+│  ├─Results                      # predict results of All Models (data for this analysis)
+│  └─Z_Score_Analysis             # print results
+│         Z_Score_FullFace_Table.xlsx
+│         Human_PSE_40_Subjects.csv
+│         Human_PSE_Summary_Log.txt
+│         ZScore_FullFace_SE-Conv-L1.png
+│         ...
 ```
 
 ### 1.2 Condition
@@ -179,6 +189,15 @@ Added **One-Sample T-Test** to compare Model PSE vs. Human Population PSEs.
     * t_stat: T-value
     * p_value: Significance level
     * Cohens_d: Effect size ($d = |PSE_{model} - Mean_{human}| / SD_{human}$)
+
+#### Z-Score Analysis
+
+$$Z_{model} = \frac{PSE_{model} - \mu_{human}}{\sigma_{human}}$$
+
+Z 值代表模型的决策阈值（PSE）距离 40 名普通人类平均水平有几个标准差。
+
+图表中的浅灰色背景带界定了 95% 置信区间
+
 
 ### 4.4 Naming & Data Management
 
