@@ -212,3 +212,186 @@ Using locConfigs structure to manage mixed naming conventions:
     Mapped to Display Name: SE-Conv-L1, SE-Conv-L2, SE-Conv-L3, SE-Conv-L4
 
 This ensures clean plot titles and Excel reports despite different underlying file naming rules.
+
+
+## 5. Supp Analysis
+
+### 5.1 Model Fit & Similarity Metrics (RMSE & R²)
+
+To comprehensively evaluate the models beyond the single decision boundary (PSE), we introduced Root Mean Square Error (RMSE) and $R^2$. 
+
+See in `7_SuppExp/0_Code/Comprehensive_RMSE_RSquare.m`
+
+(Code in `5_HumanPSECalculation/RMSE_RSquare.m` saved the `1. Goodness of Fit (Model's Internal Consistency)` and it not include new rmse)
+
+Please prepare related files before replicating:
+
+```Matlab
+dataRoot = '../../0_Data'; 
+savePath = '..Results'; 
+```
+
+These metrics are divided into two distinct categories to answer different research questions:
+
+#### 1. Goodness of Fit (Model's Internal Consistency)
+Evaluates how well the model's output probabilities across the facial intensities fit a standard psychometric sigmoid curve. A low RMSE and high $R^2$ indicate the model performs stable, rule-based classification rather than random guessing.
+
+
+* **RMSE (Fit) Formula:**
+  $$RMSE_{fit} = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(y_{sampled, i} - y_{predicted, i})^2}$$
+* **$R^2$ Formula:**
+  $$R^2 = 1 - \frac{\sum (y_{sampled, i} - y_{predicted, i})^2}{\sum (y_{sampled, i} - \bar{y}_{sampled})^2}$$
+  *(Where $y_{sampled}$ is the model's actual output probability, and $y_{predicted}$ is the theoretical value on the fitted sigmoid curve).*
+
+```Matlab
+% Part A: 计算实际点与拟合曲线的差异 (Goodness of Fit)
+
+% 1. 利用一维插值法(interp1)，从高分辨率的拟合曲线 (curveM) 中提取出实验 X 坐标对应的“理论预测 Y 值”
+yPredicted = interp1(curveM(:,1), curveM(:,2), paraX', 'linear', 'extrap');
+
+% 2. 计算残差 (真实点 和 拟合曲线上的点 的差距)
+residuals_fit = ySampled - yPredicted;
+
+% 3. 计算均方根误差 (Fit_RMSE)
+Fit_RMSE = sqrt(mean(residuals_fit.^2));
+
+% 4. 计算 R-squared (R方)
+SST = sum((ySampled - mean(ySampled)).^2);
+SSE = sum(residuals_fit.^2);
+if SST ~= 0
+    R_Square = 1 - (SSE / SST);
+else
+    R_Square = NaN; % 防止数学上分母为0
+end
+```
+
+#### 2. Model-Human Deviation (Biological Plausibility)
+Evaluates how far the model's actual reaction curve deviates from the average human baseline curve across all stimulus intensities. This proves whether the model processes extreme and neutral emotions similarly to humans, compensating for the limitations of comparing PSE alone.
+
+* **RMSE (Human Similarity) Formula:**
+  $$RMSE_{human} = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(P_{model, i} - P_{human\_ave, i})^2}$$
+  *(Where $P_{model}$ is the model's output probability, and $P_{human\_ave}$ is the average response probability of 40 human subjects at the same intensity).*
+
+```Matlab
+% Part B：计算模型与人类基线曲线的相似度 (Human_Sim_RMSE)
+                    
+% 1. 计算模型在9个点上的真实输出 (ySampled) 与 人类平均反应点 (humanAve) 之间的残差
+residuals_human = ySampled - humanAve;
+
+% 2. 计算均方根误差 (Human_Sim_RMSE)
+Human_Sim_RMSE = sqrt(mean(residuals_human.^2));          
+```
+
+### 5.2 Delta-PSE ANOVA
+
+**Code**:
+
+`7_SuppExp/0_Code/ANOVA_Delta_PSE.m`
+
+`7_SuppExp/0_Code/ANOVA_FollowUp_Analysis.m`
+
+* **因变量 (DV)**：Delta PSE（模型与人类被试 PSE 的绝对差值，数值越小表示越像人）。
+* **组内因子**：
+    1. **Pretrain** (2个水平: Face, Object)
+    2. **Location** (3个水平: L1, L2, L3)
+    3. **Ratio** (5个水平: R2, R4, R8, R16, R32)
+
+* **标准**：显著性水平 $\alpha = .05$。对于违反球形假设的情况，报告 Greenhouse-Geisser ($p_{GG}$) 校正后的结果。
+
+#### 1. 三因素重复测量方差分析 (RM-ANOVA)
+
+``表 1：RM-ANOVA 整体结果``
+
+See in `7_SuppExp/2_ANOVA_Results/RM_ANOVA_Results.xlsx`
+
+| 效应来源 (Source) | $SS$ | $df$ | $MS$ | $F$ | $p_{GG}$ | $\eta_p^2$ |
+| --- | --- | --- | --- | --- | --- | --- |
+| Pretrain | 0.009 | 1 | 0.009 | 1.370 | .249 | .034 |
+| Location | 0.006 | 2 | 0.003 | 1.235 | .279 | .031 |
+| **Ratio** | 0.400 | 4 | 0.100 | 49.150 | **<.001** | **.558** |
+| **Pre $\times$ Loc** | 0.124 | 2 | 0.062 | 7.293 | **.010** | **.158** |
+| **Pre $\times$ Rat** | 0.808 | 4 | 0.202 | 135.840 | **<.001** | **.777** |
+| **Loc $\times$ Rat** | 0.535 | 8 | 0.067 | 46.034 | **<.001** | **.541** |
+| **Pre $\times$ Loc $\times$ Rat** | 0.687 | 8 | 0.086 | 26.918 | **<.001** | **.408** |
+
+**分析结论**：由于**三阶交互作用显著** ($p_{GG} < .001$)，说明压缩比例的效果高度依赖于预训练背景和模型位置的组合。
+
+
+#### 2. 二阶简单效应分析
+
+由于所有二阶交互作用均显著，我们分别从三个维度进行拆解。
+
+##### 2.1 Pretrain $\times$ Location (固定预训练看位置)
+
+**分析发现**：面孔预训练（Face）对位置极度敏感，而物体预训练（Object）在不同位置间表现一般。并不恒定，但对于多数model适用
+
+`表 2：基于 Pretrain 的位置简单效应比较`
+
+See `7_SuppExp/2_ANOVA_Results/PostHoc_2Way_Pretrain_Location.csv`
+
+| Pretrain | Comparison (Loc) | Difference | Std. Err | $p_{bonf}$ |
+| --- | --- | --- | --- | --- |
+| **Face** | **L1 vs L3** | 0.0233 | 0.0015 | **<.001** |
+| **Face** | **L2 vs L3** | 0.0277 | 0.0051 | **<.001** |
+| Object | L1 vs L3 | -0.0127 | 0.0069 | .221 |
+
+##### 2.2 Pretrain $\times$ Ratio (固定预训练看压缩比)
+
+
+`表 3：基于 Pretrain 的 Ratio 简单效应比较 (以 R16 为基准)`
+
+See `7_SuppExp/2_ANOVA_Results/PostHoc_2Way_Pretrain_Ratio.csv`
+
+| Pretrain | Comparison | Difference | Std. Err | $p_{bonf}$ |
+| --- | --- | --- | --- | --- |
+| **Face** | **R16 vs R2** | -0.0554 | 0.0084 | **<.001** |
+| **Face** | **R16 vs R8** | -0.0947 | 0.0103 | **<.001** |
+| **Object** | R16 vs R2 | -0.0590 | 0.0084 | **<.001** |
+| **Object** | R16 vs R8 | 0.0313 | 0.0045 | **<.001** |
+
+##### 2.3 Location $\times$ Ratio (固定位置看压缩比)
+
+在 L3 位置，R16 相对于其他 Ratio 展现了显著的类人化优势。
+
+See `7_SuppExp/2_ANOVA_Results/PostHoc_2Way_Location_Ratio.csv`
+
+| Location | Comparison | Difference | Std. Err | $p_{bonf}$ |
+| --- | --- | --- | --- | --- |
+| **L3** | **R16 vs R2** | -0.0308 | 0.0057 | **<.001** |
+| **L3** | **R16 vs R4** | 0.0127 | 0.0035 | **.008** |
+| **L3** | **R16 vs R8** | -0.0350 | 0.0039 | **<.001** |
+
+
+#### 3. 三阶简单简单效应分析 (3-way Simple Simple Effects)
+
+##### 3.1 基于 Pretrain + Location 拆解 Ratio (寻找各配置下的最佳 Ratio)
+
+`Face 组在不同位置下的 Ratio 关键比较`
+
+See `7_SuppExp/2_ANOVA_Results/PostHoc_3Way_Pretrain_Location_Ratio.csv`
+
+| Location | Comparison | Difference | Std. Err | $p_{bonf}$ |
+| --- | --- | --- | --- | --- |
+| **L3** | **R16 vs R2** | **-0.04396** | **0.01116** | **.003** |
+| **L3** | **R16 vs R8** | -0.13913 | 0.01466 | **<.001** |
+| **L1** | R16 vs R2 | -0.03013 | 0.01031 | .058 |
+| **L1** | R16 vs R8 | -0.13373 | 0.01503 | **<.001** |
+
+
+##### 3.2 基于 Location + Ratio 拆解 Pretrain (面孔 vs 物体)
+
+
+`表：相同物理架构下 Pretrain 的直接对比 (Face vs Object)`
+
+| Location | Ratio | Mean Diff (F-O) | Std. Err | $p_{bonf}$ | 结论 |
+| --- | --- | --- | --- | --- | --- |
+| **L3** | **R16** | **-0.08012** | **0.01315** | **<.001** | **Face 显著优于 Object** |
+| **L3** | **R2** | -0.04403 | 0.01235 | **.002** | Face 优于 Object |
+| L1 | R16 | -0.00108 | 0.00125 | .393 | 无显著差异 |
+
+
+---
+#### Notes:
+1. Face 预训练 + L3 位置 + R16 压缩。该组合下误差最小，且显著优于物体预训练组。
+2. 面孔模型的类人化优势在 **L3 (晚期语义位置)** 表现最明显。在 L1 (早期位置) 时，预训练的影响微乎其微 ($p = .393$)。
+3. R16 在 Face-L3 架构下表现出了显著优于 R2 ($p=.003$) 和 R8 ($p<.001$) 的类人度，验证了适度信息压缩的必要性。
