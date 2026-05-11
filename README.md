@@ -238,9 +238,13 @@ Evaluates how well the model's output probabilities across the facial intensitie
 
 
 * **RMSE (Fit) Formula:**
-  $$RMSE_{fit} = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(y_{sampled, i} - y_{predicted, i})^2}$$
+
+$$RMSE_{fit} = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(y_{sampled, i} - y_{predicted, i})^2}$$
+
 * **$R^2$ Formula:**
-  $$R^2 = 1 - \frac{\sum (y_{sampled, i} - y_{predicted, i})^2}{\sum (y_{sampled, i} - \bar{y}_{sampled})^2}$$
+
+$$R^2 = 1 - \frac{\sum (y_{sampled, i} - y_{predicted, i})^2}{\sum (y_{sampled, i} - \bar{y}_{sampled})^2}$$
+
   *(Where $y_{sampled}$ is the model's actual output probability, and $y_{predicted}$ is the theoretical value on the fitted sigmoid curve).*
 
 ```Matlab
