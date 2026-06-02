@@ -393,9 +393,59 @@ See `7_SuppExp/2_ANOVA_Results/PostHoc_3Way_Pretrain_Location_Ratio.csv`
 | **L3** | **R2** | -0.04403 | 0.01235 | **.002** | Face 优于 Object |
 | L1 | R16 | -0.00108 | 0.00125 | .393 | 无显著差异 |
 
-
----
 #### Notes:
 1. Face 预训练 + L3 位置 + R16 压缩。该组合下误差最小，且显著优于物体预训练组。
 2. 面孔模型的类人化优势在 **L3 (晚期语义位置)** 表现最明显。在 L1 (早期位置) 时，预训练的影响微乎其微 ($p = .393$)。
 3. R16 在 Face-L3 架构下表现出了显著优于 R2 ($p=.003$) 和 R8 ($p<.001$) 的类人度，验证了适度信息压缩的必要性。
+
+## 6. Why it is impossible to predict agian?
+
+##### 1. 模型的所有权重和Dropout之类的具有随机性的操作均被冻结
+
+`1_Codes/predict.py`
+
+```Python
+# load model weights
+weights_path = "/home/zhang/share/home/scz6112/AffectNet/ALLResultsCollection/ClassifiedWithCondition/SELocate-1/FaceBased/squeeze-32/AlexNet.pth"  # check point 5: the file name; If wrong, see point 4 in train.py
+assert os.path.exists(weights_path), "file: '{}' dose not exist.".format(weights_path)
+model.load_state_dict(torch.load(weights_path), strict = False)
+
+model.eval()
+with torch.no_grad():
+    # predict class
+    output = torch.squeeze(model(img.to(device))).cpu()
+    predict = torch.softmax(output, dim=0)
+    print(predict)
+```
+
+##### 2. 无法通过平移面孔位置获得多次预测数据的原因
+
+（1）MaxPool2d会提取感受野内的最大激活值，导致平移的物理量被抵消
+
+（2）SE Module中引入的全局平均池化会对平移后的面孔计算出完全相同的通道注意力权重
+
+`1_Codes/SEAlexNetLocation1/se_model.py`
+
+```Python
+class AlexNetWithSE(nn.Module):    # check step 1: the location of SE block    1 - first palce / 3 is already
+    def __init__(self, num_classes=2):
+        super(AlexNetWithSE, self).__init__()
+        
+        # AlexNet convolutional layers
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(64, 192, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(192, 384, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(384, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2)
+        )
+```
+
