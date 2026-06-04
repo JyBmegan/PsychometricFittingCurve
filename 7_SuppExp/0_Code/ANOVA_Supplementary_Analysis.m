@@ -196,5 +196,47 @@ end
 writetable(cohensD_pretrain, fullfile(savePath, 'CohensD_3Way_Pretrain_new.csv'));
 fprintf('  Saved: CohensD_3Way_Pretrain_new.csv (%d rows)\n', height(cohensD_pretrain));
 
+%% ===== Section 4: Simple Simple Main Effect of Location =====
+% Fix Pretrain & Ratio, compare Location (L1 vs L2 vs L3) - Bonferroni
+fprintf('\n========== 4. Simple Simple Main Effect of Location ==========\n');
+fprintf('  (Fix Pretrain & Ratio, compare L1/L2/L3 with Bonferroni)\n\n');
+
+post_3way_Location = table();
+cohensD_location = table();
+for iP = 1:length(uPre)
+    for iR = 1:length(uRat)
+        colL1 = sprintf('%s_L%d_R%d', uPre{iP}, 1, uRat(iR));
+        colL2 = sprintf('%s_L%d_R%d', uPre{iP}, 2, uRat(iR));
+        colL3 = sprintf('%s_L%d_R%d', uPre{iP}, 3, uRat(iR));
+        if ~all(ismember({colL1, colL2, colL3}, measNames))
+            continue;
+        end
+        subData = wideFormatData(:, {'SubjectID', colL1, colL2, colL3});
+        subNames = subData.Properties.VariableNames(2:end);
+        subDesign = table(categorical({'L1';'L2';'L3'}), 'VariableNames', {'Location'});
+        sub_rm = fitrm(subData, sprintf('%s-%s ~ 1', subNames{1}, subNames{end}), ...
+                       'WithinDesign', subDesign);
+        tmp = multcompare(sub_rm, 'Location', 'ComparisonType', 'bonferroni');
+        tmp.Pretrain = repmat(uPre(iP), height(tmp), 1);
+        tmp.Ratio = repmat(uRat(iR), height(tmp), 1);
+        post_3way_Location = [post_3way_Location; tmp];
+
+        % Cohen's dz for each pair
+        pairs = {[1,2],[1,3],[2,3]};
+        cols = {colL1, colL2, colL3};
+        for p = 1:length(pairs)
+            c1 = pairs{p}(1); c2 = pairs{p}(2);
+            diffScores = wideFormatData.(cols{c1}) - wideFormatData.(cols{c2});
+            row = table({uPre{iP}}, uRat(iR), c1, c2, mean(diffScores), std(diffScores), ...
+                abs(mean(diffScores))/std(diffScores), ...
+                'VariableNames', {'Pretrain','Ratio','Loc1','Loc2','M_diff','SD_diff','Cohens_dz'});
+            cohensD_location = [cohensD_location; row];
+        end
+    end
+end
+writetable(post_3way_Location, fullfile(savePath, 'PostHoc_3Way_Compare_Location_new.csv'));
+writetable(cohensD_location, fullfile(savePath, 'CohensD_3Way_Location_new.csv'));
+fprintf('  Saved: PostHoc_3Way_Compare_Location_new.csv, CohensD_3Way_Location_new.csv\n');
+
 fprintf('\n========== All supplementary analyses complete. ==========\n');
 fprintf('Output files in: %s\n', savePath);
