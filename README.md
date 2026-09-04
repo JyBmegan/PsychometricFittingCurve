@@ -1,5 +1,16 @@
 # Fitting Log for Psychometric Curve in SE-AlexNet Analysis
 
+<p align="center">
+    <a href="https://jybmegan.github.io/SE-AlexNet/"><img src="https://img.shields.io/badge/Project-Page-blue" alt="Project Page"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-green" alt="License"></a>
+</p>
+
+
+<p align="center">
+    <a href="./0_InputImages/"><img src="https://img.shields.io/badge/Dataset-Github-orange" alt="Dataset: DFEW"></a>
+    <a href="https://huggingface.co/JiayuMBao/SE-AlexNet"><img src="https://img.shields.io/badge/Model%20Weights-Hugging%20Face-yellow" alt="Model Weights: Hugging Face"></a>
+</p>
+
 ## 1. Preparation
 
 ### 1.1 File Structure
