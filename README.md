@@ -1,60 +1,60 @@
 # Psychometric-Function Analysis for SE-AlexNet
 
-从 21 点模型预测与人类行为数据复现论文中的 PSE、拟合质量、ΔPSE 与 ANOVA 表格。
+Reproduce the paper's PSE, fit-quality, ΔPSE, and ANOVA tables from the 21-point model predictions and the human behavioral data.
 
-## 复现
+## Reproduce
 
 ```bash
 pip install -r requirements.txt
 python3 Code/reproduce_psychometric_results.py
 ```
 
-脚本校验 136 个预测文件，并把全部结果表写入 `Results/`。
+The script validates 136 prediction files and writes every result table into `Results/`.
 
-## 输入
+## Inputs
 
-| 路径 | 内容 |
+| Path | Content |
 | --- | --- |
-| `Data/model_predictions_21point/` | 136 个预测文件：120 个 SE-AlexNet 条件 + 16 个 AlexNet/VGG16 基线，每个文件含 21 个反应概率 |
-| `Data/human-data-9point.csv` | 9 个刺激强度上的人类平均反应概率 |
-| `Code/Human_PSE_40_Subjects.csv` | 40 名被试各自的 PSE 与曲线参数 |
+| `Data/model_predictions_21point/` | 136 prediction files: 120 SE-AlexNet conditions + 16 AlexNet/VGG-16 baselines; each file holds 21 response probabilities |
+| `Data/human-data-9point.csv` | Human mean response probability at 9 stimulus intensities |
+| `Code/Human_PSE_40_Subjects.csv` | Individual PSE and curve parameters for the 40 participants |
 
-分析从每个 21 点序列中取第 1、5、7、9、11、13、15、17、21 个点，对应刺激强度 `0.0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0`。
+The analysis takes the 1st, 5th, 7th, 9th, 11th, 13th, 15th, 17th, and 21st points of each 21-point series, corresponding to stimulus intensities `0.0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0`.
 
-掩码标签为 `Full`（完整）、`E`（遮眼）、`N`（遮鼻）、`M`（遮嘴）。`Location-1/2/3` 是三个全连接 SE 插入位置（前序/中序/后序）。压缩比为 2、4、8、16、32。
+Mask labels are `Full` (intact), `E` (eyes occluded), `N` (nose occluded), `M` (mouth occluded). `Location-1/2/3` are the three fully-connected SE insertion positions (pre/mid/post). Reduction ratios are 2, 4, 8, 16, 32.
 
-## 输出
+## Outputs
 
-`Results/` 下共 11 张表，其中论文直接使用三张：
+`Results/` holds 11 tables, three of which the paper uses directly:
 
-| 输出 | 内容 |
+| Output | Content |
 | --- | --- |
-| `Paper_Table1_PSE_RMSE.csv` | 论文表 1：各模型 PSE、t、p、Cohen's d、模型-人类曲线 RMSE |
-| `Paper_Table2_Fit_Quality.csv` | 论文表 2：拟合 R² 与 RMSE |
-| `Paper_Table3_Occlusion.csv` | 论文表 3：遮挡条件下各模型的 PSE 统计 |
+| `Paper_Table1_PSE_RMSE.csv` | Paper Table 1: per-model PSE, t, p, Cohen's d, and model-human curve RMSE |
+| `Paper_Table2_Fit_Quality.csv` | Paper Table 2: fit R² and RMSE |
+| `Paper_Table3_Occlusion.csv` | Paper Table 3: per-model PSE statistics under occlusion |
 
-其余为中间数据：`Model_Psychometric_Results.csv`（全部 136 个模型的完整统计）、`Human_Psychometric_Summary.csv`、`DeltaPSE_Long/Wide.csv`、`Repeated_Measures_ANOVA.csv`、三个 `PostHoc_*.csv`。
+The rest are intermediate data: `Model_Psychometric_Results.csv` (complete statistics for all 136 models), `Human_Psychometric_Summary.csv`, `DeltaPSE_Long/Wide.csv`, `Repeated_Measures_ANOVA.csv`, and the three `PostHoc_*.csv` files.
 
-## 心理物理函数与统计量
+## Psychometric function and statistics
 
-累积高斯心理物理函数（对 9 个点拟合）：
+Cumulative-Gaussian psychometric function (fitted to the 9 points):
 
 $$
 y = g + (1-g-l)\cdot\frac12\left[1+\operatorname{erf}\left(\frac{x-u}{\sqrt{2v^2}}\right)\right]
 $$
 
-- $g$：下渐近线（guess）；$l$：上渐近线损失（lapse）；$u$：主观相等点 PSE；$v$：曲线尺度。
-- PSE 处斜率：$\displaystyle\frac{1-g-l}{\sqrt{2\pi}\,v}$。
+- $g$: lower asymptote (guess); $l$: upper-asymptote loss (lapse); $u$: point of subjective equality (PSE); $v$: curve scale.
+- Slope at the PSE: $\displaystyle\frac{1-g-l}{\sqrt{2\pi}\,v}$.
 
-拟合边界与初值：
+Fit bounds and starting values:
 
 ```text
-上界 [0.05, 0.05, 1.0, 100.0]
-初值 [0.01, 0.02, 0.5,   5.0]
-下界 [0.00, 0.00, 0.0,   0.1]
+Upper bounds [0.05, 0.05, 1.0, 100.0]
+Start values [0.01, 0.02, 0.5,   5.0]
+Lower bounds [0.00, 0.00, 0.0,   0.1]
 ```
 
-模型 PSE 对 40 个人类 PSE 的双侧单样本 t 检验：
+Two-sided one-sample t-test of each model PSE against the 40 human PSEs:
 
 $$
 t=\frac{\bar{PSE}_{human}-PSE_{model}}{SD_{human}/\sqrt{N}},
@@ -62,10 +62,10 @@ t=\frac{\bar{PSE}_{human}-PSE_{model}}{SD_{human}/\sqrt{N}},
 |d|=\frac{|PSE_{model}-\bar{PSE}_{human}|}{SD_{human}}
 $$
 
-个体级 ΔPSE：
+Individual-level ΔPSE:
 
 $$
 \Delta PSE_{ij}=|PSE_{model,i}-PSE_{human,j}|
 $$
 
-对 ΔPSE 做 2（预训练类型）× 3（插入位置）× 5（压缩比）重复测量 ANOVA，以及 Bonferroni 校正的事后配对 t 检验。
+ΔPSE is analyzed with a 2 (pretraining type) × 3 (insertion location) × 5 (reduction ratio) repeated-measures ANOVA, plus Bonferroni-corrected post-hoc paired t-tests.
