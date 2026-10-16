@@ -40,7 +40,7 @@ The rest are intermediate data: `Model_Psychometric_Results.csv` (complete stati
 Cumulative-Gaussian psychometric function (fitted to the 9 points):
 
 $$
-y = g + (1-g-l)\cdot\frac12\left[1+\operatorname{erf}\left(\frac{x-u}{\sqrt{2v^2}}\right)\right]
+y = g + (1-g-l)\cdot\frac12\left[1+\mathrm{erf}\left(\frac{x-u}{\sqrt{2v^2}}\right)\right]
 $$
 
 - $g$: lower asymptote (guess); $l$: upper-asymptote loss (lapse); $u$: point of subjective equality (PSE); $v$: curve scale.
