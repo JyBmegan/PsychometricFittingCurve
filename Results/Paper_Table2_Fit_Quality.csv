@@ -1,0 +1,15 @@
+PaperModel,BaseType,SourceFile,R2_Fit,RMSE_Fit
+VGG16,FaceBased,VGG-16-FaceBased-Full-raw.csv,0.9696827864129094,0.05597861330211943
+VGG16,ObjectBased,VGG-16-ObjectBased-Full-raw.csv,0.7961804522019993,0.08385776783231974
+AlexNet,FaceBased,AlexNet-FaceBased-Full-raw.csv,0.9015370120598025,0.06474923329627771
+AlexNet,ObjectBased,AlexNet-ObjectBased-Full-raw.csv,0.8574382020236372,0.08908481765231448
+SE-AlexNet-R2,FaceBased,Location-3-FaceBased-Full-2.csv,0.9821160842137141,0.04996363373095888
+SE-AlexNet-R2,ObjectBased,Location-3-ObjectBased-Full-2.csv,0.8968153734209166,0.07871891470019812
+SE-AlexNet-R4,FaceBased,Location-3-FaceBased-Full-4.csv,0.9442414243833305,0.07479302387914363
+SE-AlexNet-R4,ObjectBased,Location-3-ObjectBased-Full-4.csv,0.9481746902950668,0.06196389152759392
+SE-AlexNet-R8,FaceBased,Location-3-FaceBased-Full-8.csv,0.9840935532994682,0.03645921608655726
+SE-AlexNet-R8,ObjectBased,Location-3-ObjectBased-Full-8.csv,0.8100884410508234,0.10322760209736123
+SE-AlexNet-R16,FaceBased,Location-3-FaceBased-Full-16.csv,0.9869769927260457,0.041195711932375145
+SE-AlexNet-R16,ObjectBased,Location-3-ObjectBased-Full-16.csv,0.9873783836645345,0.0383925793127727
+SE-AlexNet-R32,FaceBased,Location-3-FaceBased-Full-32.csv,0.9743904006317333,0.0595250135473929
+SE-AlexNet-R32,ObjectBased,Location-3-ObjectBased-Full-32.csv,0.9517010408615014,0.06055107739138602
