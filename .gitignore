@@ -5,3 +5,19 @@ __pycache__/
 ~$*
 * copy*
 
+# Files not for the public code repository
+*.xls
+*.xlsx
+*.docx
+*.pptx
+*.pdf
+*.fig
+*.pth
+*.pt
+*.ckpt
+private/
+legacy/
+Ref_Results/
+Data/*.xlsx
+Results/Corrected_Figures/
+

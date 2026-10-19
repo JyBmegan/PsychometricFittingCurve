@@ -11,6 +11,20 @@ python3 Code/reproduce_psychometric_results.py
 
 The script validates 136 prediction files and writes every result table into `Results/`.
 
+### Rebuild Figure 1d and Figure 3
+
+After reproducing the result tables, generate the signed PSE-difference figures:
+
+```bash
+python3 Code/draw_corrected_pse_figures.py
+```
+
+The script reads `Results/Model_Psychometric_Results.csv` and writes vector EPS,
+SVG, and PDF figures plus 600-dpi TIFF and PNG previews to
+`Results/Corrected_Figures/`. Figure 1d uses the `Location-3` experimental
+label; Figure 3 contains `Location-1` and `Location-2`. All panels show
+`model PSE - mean individual human PSE` in percentage points on a shared axis.
+
 ## Inputs
 
 | Path | Content |
@@ -21,7 +35,7 @@ The script validates 136 prediction files and writes every result table into `Re
 
 The analysis takes the 1st, 5th, 7th, 9th, 11th, 13th, 15th, 17th, and 21st points of each 21-point series, corresponding to stimulus intensities `0.0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0`.
 
-Mask labels are `Full` (intact), `E` (eyes occluded), `N` (nose occluded), `M` (mouth occluded). `Location-1/2/3` are the three fully-connected SE insertion positions (pre/mid/post). Reduction ratios are 2, 4, 8, 16, 32.
+Mask labels are `Full` (intact), `E` (eyes occluded), `N` (nose occluded), `M` (mouth occluded). `Location-1/2/3` are retained experimental model-family labels; their executable tensor insertion sites are documented in the main SE-AlexNet repository and Hugging Face model configurations. Reduction-ratio labels are 2, 4, 8, 16, 32.
 
 ## Outputs
 
@@ -69,3 +83,17 @@ $$
 $$
 
 ΔPSE is analyzed with a 2 (pretraining type) × 3 (insertion location) × 5 (reduction ratio) repeated-measures ANOVA, plus Bonferroni-corrected post-hoc paired t-tests.
+
+## Public-release scope
+
+This repository contains the current Python analysis, its paper-matched inputs,
+and the result tables needed to reproduce the manuscript. `Human_PSE_40_Subjects.csv`
+contains fitted parameters for the 40 participants without raw trial records or
+direct identifiers. Old MATLAB scripts, reference spreadsheets, duplicate
+outputs, and authoring materials are intentionally excluded.
+
+Before committing or publishing, run:
+
+```bash
+python3 scripts/audit_public_release.py
+```
